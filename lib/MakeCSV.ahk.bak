@@ -1,0 +1,30 @@
+﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+; #Warn  ; Enable warnings to assist with detecting common errors.
+;SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+;SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+MakeCSV() {
+	filename := "Arsenal"
+	pathIn := A_ScriptDir . "\" . filename . ".xlsx"
+	pathOut := A_ScriptDir . "\" . filename . ".csv"
+	existIn := FileExist( pathIn )
+	existOut := FileExist( pathOut )
+	if (!existIn and !existOut) {
+		MsgBox, % filename . " file does not exist`n`nProgram will now exit"
+		ExitApp
+	} else if (existIn) {
+		dateX := 0
+		if (existOut) {
+			FileGetTime, dateX, % pathIn
+			FileGetTime, dateC, % pathOut
+			EnvSub, dateX, %dateC%
+		}
+		if (dateX >= 0) 
+		{
+			FileDelete, % pathOut
+			xl := ComObjCreate("Excel.Application").Workbooks.Open(pathIn)
+			xl.SaveAs(pathOut, 6) 	; type 6 is CSV c.f. https://msdn.microsoft.com/en-us/library/office/ff198017.aspx
+			xl.close(0) 
+		}
+	}
+}
